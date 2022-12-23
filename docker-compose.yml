@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+
+
+  mongodb:
+    image: 'mongo'
+    volumes:
+      - data:/data/db
+    container_name: mongodb # to assign own names to containers instead of default names 
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: max
+    #   MONGO_INITDB_ROOT_PASSWORD: secret
+    # -  MONGO_INITDB_ROOT_PASSWORD=secret
+    env_file:
+      - ./env/mongo.env
+
+
+  backend: 
+    build: ./backend
+    # build: 
+      # context: ./backend  -- context must be set to the /backend folder since docker copies the whole folder into the image
+      # dockerfile: Dockerfile
+      # args:
+      #  argKey: argValue
+    ports:
+      - '80:80'
+    volumes:
+      - logs:/app/logs
+      - ./backend:/app  # anonymous and bind mounts dont need to be specidfied in volumes 
+      - /app/node_modules # anonymous and bind mounts dont need to be specidfied in volumes 
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - mongodb
+
+
+  frontend:
+    build: ./frontend
+    ports: 
+      - '3000:3000'
+    volumes:
+      - ./frontend/src:/app/src
+    stdin_open: true  # -it option for react to start (these two are required)
+    tty: true # -it option for react to start (these two are required)
+    depends_on:
+      - backend
+
+volumes:
+  data:
+  logs:

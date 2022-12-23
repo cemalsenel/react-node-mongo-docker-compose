@@ -1,0 +1,1 @@
+reactjs-nodejs-mongodb application is deployed by docker-compose
